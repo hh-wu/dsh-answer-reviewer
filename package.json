@@ -1,0 +1,71 @@
+{
+  "name": "dsh-answer-reviewer",
+  "description": "dsh host plugin: every agent turn's final assistant output is reviewed by a separate LLM graded 1-100; below-threshold scores steer the agent with concrete feedback. The score is shown in the finalized answer's action row (conversation.chat.assistant-actions) via a same-origin feed, and the gate is tunable live from a first-class tab in the conversation view ring above the composer (conversation.view: 对话 / 轨迹 / 记忆系统 / Reviewer 配置) or an optional right-sidebar tab, backed by a 127.0.0.1 HTTP server.",
+  "version": "0.7.6",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bycall/dsh-answer-reviewer.git"
+  },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "plugin",
+    "review",
+    "llm-as-judge"
+  ],
+  "author": "bycall",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": {
+      "default": "./lib/index.js"
+    },
+    "./review": {
+      "default": "./lib/review.js"
+    },
+    "./config-store": {
+      "default": "./lib/config-store.js"
+    },
+    "./server": {
+      "default": "./lib/server.js"
+    },
+    "./client": {
+      "default": "./lib/client.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "README.md",
+    "CONFIGURE.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "inject": [],
+      "platform": "web"
+    }
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "^4.0.1",
+    "@deepseek-ai/dsh-llm": "^0.1.2-alpha.1 || ^0.1.3-alpha.1 || ^0.1.5-rc.1 || ^0.1.6-alpha.1 || ^0.1.7-alpha.1 || ^0.2.0-rc.1",
+    "@deepseek-ai/dsh-session": "^0.1.2-alpha.1 || ^0.1.3-alpha.1 || ^0.1.5-rc.1 || ^0.1.6-alpha.1 || ^0.1.7-alpha.1 || ^0.2.0-rc.1",
+    "@deepseek-ai/schemastery": "^3.18.1"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "check": "for f in lib/*.js; do node --check \"$f\" || exit 1; done",
+    "test": "node test/smoke.mjs",
+    "verify": "npm run check && npm test",
+    "prepublishOnly": "npm run verify"
+  },
+  "license": "MIT"
+}
