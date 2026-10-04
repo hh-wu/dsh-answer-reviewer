@@ -68,6 +68,33 @@ score chip / config surfaces are untouched.
 Then reinstall the profile and **restart the host**: plugin host code is only loaded
 when the `dsh` process starts — refreshing the web UI is not enough.
 
+### Or keep the npm dependency and let pnpm apply the fix (recommended)
+
+Swapping the dependency changes how the profile resolves the plugin's peer dependencies,
+so the DSH desktop profile instead keeps `"dsh-answer-reviewer": "0.7.6"` and re-applies
+this fork's `lib/review.js` change on **every** install through pnpm's
+`patchedDependencies`:
+
+```yaml
+# ~/.dsh/profiles/<profile>/pnpm-workspace.yaml  (pnpm >= 10; older pnpm: package.json -> pnpm.patchedDependencies)
+patchedDependencies:
+  dsh-answer-reviewer@0.7.6: patches/dsh-answer-reviewer@0.7.6.patch
+```
+
+The patch file is this repository's change with package-root-relative paths (`a/lib/review.js`);
+a copy lives in [`tools/pnpm-patch/`](tools/pnpm-patch). After `pnpm install` the lockfile
+records `dsh-answer-reviewer@0.7.6(patch_hash=…)`, so a plugin update or reinstall cannot
+silently drop the fix.
+
+Verified with pnpm 11.7.0 (`nodeLinker: hoisted`) via `pnpm install --offline`: the
+installed `lib/review.js` is byte-identical to this repository and the assertion suite
+passes against the installed copy. Restart the host afterwards.
+
+## Upstream
+
+The minimal, upstream-facing change is on the `fix/v4-producer-owned-source` branch
+(2 files: `lib/review.js` + `README.md`, no fork plumbing, no changelog/version churn).
+
 ## Maintenance
 
 * `tools/apply-patch.cjs` — idempotent script that re-applies this fix directly to an
