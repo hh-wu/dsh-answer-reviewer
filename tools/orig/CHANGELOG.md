@@ -4,28 +4,6 @@ All notable changes to `dsh-answer-reviewer` are documented here. The plugin
 follows [Semantic Versioning](https://semver.org/); every release bumps
 both `package.json#version` and this file in the same commit.
 
-## 0.7.6+dsh-0.2.0-rc.2-local — 2026-10-04 (local patch, not published to npm)
-
-### Fixed
-
-- **Session format v4 refused every injected message.** Both messages this
-  plugin creates carried the retired v3 wrapper
-  `source: { kind: 'plugin', plugin: 'dsh-answer-reviewer' }`. DSH
-  `@deepseek-ai/dsh` 0.2.0-rc.2 writes sessions as format v4, whose durable
-  message admission rejects any `kind === 'plugin'` with
-  `SessionFormatError: format v4 message requires a producer-owned source
-  kind`. The steer goes through `agent.steer()`, which commits an
-  `agent/inbox/spliced` event, so the rejection aborted the entire turn
-  ("本轮运行失败") instead of delivering the feedback — and the aborted write
-  left that session unable to persist any further turn. Both messages now use
-  the producer-owned kind `dsh-answer-reviewer`.
-- **`extractUserPrompts` read the pre-v4 message shape.** In format v4 a
-  `user/message` event carries the message directly on `data`; the plugin
-  read `data.message`, so `<all_user_prompts>` was always empty on 0.2.x and
-  the reviewer graded replies without the user's question. It now accepts both
-  shapes and selects real prompts by the host's own marker
-  `source.kind === 'user'` instead of "not `'plugin'`".
-
 ## 0.7.6 — 2026-09-29
 
 ### Changed
